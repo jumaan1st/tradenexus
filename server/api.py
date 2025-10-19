@@ -1,7 +1,7 @@
 from google import genai
 from filter import filter
 
-client = genai.Client(api_key="AIzaSyAc8Fm4e8P51IvYNaAjeHMZcAxrPW-j1K8")
+client = genai.Client(api_key="AIzaSyBwGMvyEpBuYiVYoZZ_GPlTqidZl6uGJVE")
 
 
 def generate_content(prompt):

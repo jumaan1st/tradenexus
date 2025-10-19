@@ -57,14 +57,14 @@ Fundamental analysis (EPS, revenue growth, P/E ratio, etc.)
 
 Recent news headlines with timestamps
 
-🔔 Today’s date is {datetime.now().strftime('%d %B %Y')}.
+Today’s date is {datetime.now().strftime('%d %B %Y')}.
 Your task is to analyze this data and generate a comprehensive and structured report in JSON format.
 
-🔒 Important:
+ Important:
 Do NOT modify the values or structure of the input data.
 Follow the JSON output structure below strictly.
 
-📦 JSON Output Format (Follow this strictly):
+ JSON Output Format (Follow this strictly):
 {{
   "stock_name": "symbol of the stock",
   "Currency":"currency of the stock",
@@ -90,7 +90,7 @@ Follow the JSON output structure below strictly.
     "summary": "<Overall market sentiment based on news>",
     "positive_news": ["<Headline and date if applicable>"],
     "negative_news": ["<Headline and date if applicable>"],
-    "neutral_news": ["<Headline and date if applicable>"]
+    "neutral_news": ["<Headline and date if applicable>"],
   }},
   "investment_outlook": {{
     "verdict": "Pobability of Buy / Sell / Skip in percentage",
@@ -108,7 +108,7 @@ Follow the JSON output structure below strictly.
   }},
 }}
 
-📊 Raw Data:
+ Raw Data:
 {raw_data}
 """
 

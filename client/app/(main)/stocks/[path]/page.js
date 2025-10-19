@@ -12,16 +12,22 @@ export default function StockPage({ params: paramsPromise }) {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  
+  // The key change is here: default sort is now by Date, descending
+  const [sortConfig, setSortConfig] = useState({ key: 'Date', direction: 'desc' });
+
   const [rawFilter, setRawFilter] = useState('');
   const [technicalFilter, setTechnicalFilter] = useState('');
   const [fundamentalFilter, setFundamentalFilter] = useState('');
   const { setCurrentPageTitle } = useGlobalContext();
-  
-    useEffect(() => {
-      setCurrentPageTitle('AI Stock Prediction');
-    }, [setCurrentPageTitle]);
-  
+
+  // State for pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  useEffect(() => {
+    setCurrentPageTitle('AI Stock Prediction');
+  }, [setCurrentPageTitle]);
 
   const fetchStock = async (companyName) => {
     if (!companyName.trim()) {
@@ -30,6 +36,7 @@ export default function StockPage({ params: paramsPromise }) {
       return;
     }
 
+    setCurrentPage(1); // Reset to page 1 for new search
     setLoading(true);
     setError('');
     setResult(null);
@@ -48,7 +55,7 @@ export default function StockPage({ params: paramsPromise }) {
 
       const data = await res.json();
       setResult(data);
-    } catch (err) {
+    } catch (err)  {
       setError('Failed to fetch stock info.');
     } finally {
       setLoading(false);
@@ -68,17 +75,14 @@ export default function StockPage({ params: paramsPromise }) {
     }
   };
 
-  // Helper function to safely format numbers
   const formatNumber = (value, decimals = 2, defaultValue = 'N/A') => {
     return typeof value === 'number' && !isNaN(value) ? value.toFixed(decimals) : defaultValue;
   };
 
-  // Helper function to format percentages
   const formatPercentage = (value, decimals = 1, defaultValue = 'N/A') => {
     return typeof value === 'number' && !isNaN(value) ? `${(value * 100).toFixed(decimals)}%` : defaultValue;
   };
 
-  // Helper function to format large numbers
   const formatLargeNumber = (value, currencySymbol, defaultValue = 'N/A') => {
     if (typeof value !== 'number' || isNaN(value)) return defaultValue;
     if (value >= 1e9) return `${currencySymbol}${(value / 1e9).toFixed(2)}B`;
@@ -86,10 +90,8 @@ export default function StockPage({ params: paramsPromise }) {
     return `${currencySymbol}${value.toFixed(2)}`;
   };
 
-  // Dynamic currency symbol
   const currencySymbol = result?.result?.CurrencySymbol || '₹';
 
-  // Helper function to get verdict badge color
   const getVerdictBadgeColor = (verdict) => {
     if (!verdict) return 'bg-gray-200 text-gray-800';
     if (verdict.toLowerCase().includes('buy')) return 'bg-green-100 text-green-800';
@@ -98,21 +100,33 @@ export default function StockPage({ params: paramsPromise }) {
     return 'bg-gray-200 text-gray-800';
   };
 
-  // Sorting function for tables
+  // Improved sorting function for tables
   const sortData = (data, key, direction) => {
+    if (!key || !data) return data;
     return [...data].sort((a, b) => {
-      let aValue = a[key] || '';
-      let bValue = b[key] || '';
+      let aValue = a[key];
+      let bValue = b[key];
+      
+      // Explicitly handle Date sorting for robustness
+      if (key === 'Date') {
+        const dateA = aValue ? new Date(aValue) : new Date(0); // Handle null/undefined dates
+        const dateB = bValue ? new Date(bValue) : new Date(0);
+        return direction === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+      
+      aValue = a[key] || '';
+      bValue = b[key] || '';
+
       if (key === 'Value') {
-        // Handle currency, percentages, and numbers
-        aValue = aValue.replace(currencySymbol, '').replace('%', '');
-        bValue = bValue.replace(currencySymbol, '').replace('%', '');
+        aValue = String(aValue).replace(currencySymbol, '').replace('%', '');
+        bValue = String(bValue).replace(currencySymbol, '').replace('%', '');
         aValue = aValue.includes('B') ? parseFloat(aValue) * 1e9 : aValue.includes('M') ? parseFloat(aValue) * 1e6 : parseFloat(aValue) || 0;
         bValue = bValue.includes('B') ? parseFloat(bValue) * 1e9 : bValue.includes('M') ? parseFloat(bValue) * 1e6 : parseFloat(bValue) || 0;
       } else if (typeof aValue === 'string') {
         return direction === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
       }
-      return direction === 'asc' ? aValue - bValue : bValue - aValue;
+      // Default to numeric comparison
+      return direction === 'asc' ? (aValue || 0) - (bValue || 0) : (bValue || 0) - (aValue || 0);
     });
   };
 
@@ -121,9 +135,9 @@ export default function StockPage({ params: paramsPromise }) {
       key,
       direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
+    setCurrentPage(1);
   };
 
-  // Filter data based on search input
   const filterData = (data, filterText) => {
     return data.filter(item =>
       Object.values(item).some(value =>
@@ -174,12 +188,27 @@ export default function StockPage({ params: paramsPromise }) {
       ]
     : [];
 
-  const sortedRawData = sortConfig.key ? sortData(rawData, sortConfig.key, sortConfig.direction) : rawData;
-  const sortedTechnicalData = sortConfig.key ? sortData(technicalData, sortConfig.key, sortConfig.direction) : technicalData;
-  const sortedFundamentalData = sortConfig.key ? sortData(fundamentalData, sortConfig.key, sortConfig.direction) : fundamentalData;
+  const sortedRawData = sortData(rawData, sortConfig.key, sortConfig.direction);
+  const sortedTechnicalData = sortData(technicalData, sortConfig.key, sortConfig.direction);
+  const sortedFundamentalData = sortData(fundamentalData, sortConfig.key, sortConfig.direction);
   const filteredRawData = filterData(sortedRawData, rawFilter);
   const filteredTechnicalData = filterData(sortedTechnicalData, technicalFilter);
   const filteredFundamentalData = filterData(sortedFundamentalData, fundamentalFilter);
+
+  // PAGINATION LOGIC
+  const historyData = result?.raw_data?.stock_data?.history || [];
+  const sortedHistoryData = sortData(historyData, sortConfig.key, sortConfig.direction);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentHistoryItems = sortedHistoryData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(sortedHistoryData.length / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
     <div className="ml-64 p-8 bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -481,44 +510,86 @@ export default function StockPage({ params: paramsPromise }) {
           <section className="bg-white shadow-xl p-6 rounded-2xl border border-gray-200 transition-all duration-300 hover:shadow-2xl">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Recent Stock Price History</h3>
             {result?.raw_data?.stock_data?.history?.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-sm text-left">
-                  <thead className="bg-gray-100 text-gray-700 font-semibold">
-                    <tr>
-                      <th className="p-3 cursor-pointer" onClick={() => handleSort('Date')}>
-                        Date {sortConfig.key === 'Date' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                      </th>
-                      <th className="p-3 cursor-pointer" onClick={() => handleSort('Close')}>
-                        Close {sortConfig.key === 'Close' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                      </th>
-                      <th className="p-3 cursor-pointer" onClick={() => handleSort('High')}>
-                        High {sortConfig.key === 'High' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                      </th>
-                      <th className="p-3 cursor-pointer" onClick={() => handleSort('Low')}>
-                        Low {sortConfig.key === 'Low' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                      </th>
-                      <th className="p-3 cursor-pointer" onClick={() => handleSort('Volume')}>
-                        Volume {sortConfig.key === 'Volume' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortData(result.raw_data.stock_data.history.slice(0, 5), sortConfig.key, sortConfig.direction).map((entry, index) => (
-                      <tr key={index} className="border-t text-gray-700 hover:bg-gray-50 transition duration-200">
-                        <td className="p-3">
-                          {entry?.Date ? new Date(entry.Date).toLocaleDateString() : 'N/A'}
-                        </td>
-                        <td className="p-3">{currencySymbol}{formatNumber(entry?.Close)}</td>
-                        <td className="p-3">{currencySymbol}{formatNumber(entry?.High)}</td>
-                        <td className="p-3">{currencySymbol}{formatNumber(entry?.Low)}</td>
-                        <td className="p-3">
-                          {typeof entry?.Volume === 'number' ? entry.Volume.toLocaleString() : 'N/A'}
-                        </td>
+              <>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-gray-100 text-gray-700 font-semibold">
+                      <tr>
+                        <th className="p-3 cursor-pointer" onClick={() => handleSort('Date')}>
+                          Date {sortConfig.key === 'Date' ? (sortConfig.direction === 'desc' ? '↑' : '↓') : ''}
+                        </th>
+                        <th className="p-3 cursor-pointer" onClick={() => handleSort('Close')}>
+                          Close {sortConfig.key === 'Close' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                        </th>
+                        <th className="p-3 cursor-pointer" onClick={() => handleSort('High')}>
+                          High {sortConfig.key === 'High' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                        </th>
+                        <th className="p-3 cursor-pointer" onClick={() => handleSort('Low')}>
+                          Low {sortConfig.key === 'Low' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                        </th>
+                        <th className="p-3 cursor-pointer" onClick={() => handleSort('Volume')}>
+                          Volume {sortConfig.key === 'Volume' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody>
+                      {currentHistoryItems.map((entry, index) => (
+                        <tr key={index} className="border-t text-gray-700 hover:bg-gray-50 transition duration-200">
+                          <td className="p-3">
+                            {entry?.Date ? new Date(entry.Date).toLocaleDateString() : 'N/A'}
+                          </td>
+                          <td className="p-3">{currencySymbol}{formatNumber(entry?.Close)}</td>
+                          <td className="p-3">{currencySymbol}{formatNumber(entry?.High)}</td>
+                          <td className="p-3">{currencySymbol}{formatNumber(entry?.Low)}</td>
+                          <td className="p-3">
+                            {typeof entry?.Volume === 'number' ? entry.Volume.toLocaleString() : 'N/A'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* PAGINATION CONTROLS */}
+                {pageNumbers.length > 1 && (
+                  <nav className="mt-4 flex justify-center">
+                    <ul className="inline-flex items-center -space-x-px">
+                      <li>
+                        <button
+                          onClick={() => paginate(currentPage - 1)}
+                          disabled={currentPage === 1}
+                          className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Previous
+                        </button>
+                      </li>
+                      {pageNumbers.map(number => (
+                        <li key={number}>
+                          <button
+                            onClick={() => paginate(number)}
+                            className={`px-3 py-2 leading-tight border border-gray-300 ${
+                              currentPage === number
+                                ? 'text-gray-800 bg-gray-200 font-bold'
+                                : 'text-gray-500 bg-white hover:bg-gray-100 hover:text-gray-700'
+                            }`}
+                          >
+                            {number}
+                          </button>
+                        </li>
+                      ))}
+                      <li>
+                        <button
+                          onClick={() => paginate(currentPage + 1)}
+                          disabled={currentPage === pageNumbers.length}
+                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Next
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                )}
+              </>
             ) : (
               <p className="text-gray-600">No stock price history available</p>
             )}

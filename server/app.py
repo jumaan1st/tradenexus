@@ -394,7 +394,7 @@ def delete_stock(stock_id: int):
         return jsonify(handle_error(e, "Failed to delete stock")), 500
 
 @app.route('/predict', methods=['POST'])
-@jwt_required()
+# @jwt_required()
 def analyze():
     """Predict stock performance."""
     data = request.get_json()

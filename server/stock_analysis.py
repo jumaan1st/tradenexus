@@ -4,6 +4,26 @@ import feedparser
 from googlesearch import search
 import urllib.parse
 from flask import jsonify, request
+import requests
+
+
+def fetch_first_url(query, api_key):
+    url = "https://www.searchapi.io/api/v1/search"
+    params = {
+        "engine": "google",
+        "q": query,
+        "api_key": api_key
+    }
+    response = requests.get(url, params=params)
+    data = response.json()
+
+    if response.status_code == 200 and "organic_results" in data:
+        first_url = data["organic_results"][0]["link"]
+        return first_url
+    else:
+        print("Error fetching data:", data.get("error", "Unknown error"))
+        return None
+
 
 def analyze_stock(comp_name, data=None):
     """
@@ -21,9 +41,9 @@ def analyze_stock(comp_name, data=None):
     if data is None:
         ticker_symbol = None
         try:
-            # Search for ticker symbol via Yahoo Finance
+       # Search for ticker symbol via Yahoo Finance
             query = f"Yahoo Finance {comp_name}"
-            first_result = next(search(query, num_results=1))
+            first_result = fetch_first_url(query, "zeUH2nsjXf3q853aE8ee6pet")
             ticker_symbol = first_result.split('/')[4]
             ticker_symbol = urllib.parse.unquote(ticker_symbol)  # Decode URL-encoded ticker symbol
             stock = yf.Ticker(ticker_symbol)
@@ -151,28 +171,31 @@ def analyze_stock(comp_name, data=None):
     )
 
     # ----------- News Headlines -----------
-    def get_google_news_headlines(query):
-        try:
-            query = query.replace(' ', '+')
-            url = f"https://news.google.com/rss/search?q={query}"
-            feed = feedparser.parse(url)
-            news = []
-            for entry in feed.entries[:15]:  # Limit to top 5 headlines
-                title = entry.title
-                published = entry.published
-                news.append(f"📰 {title}\n📅 {published}\n")
-            # url = f"https://news.google.com/rss/search?q=global Stock Market News {query}"
-            # feed = feedparser.parse(url)
-            # global_news = []
-            # for entry in feed.entries[:15]:  # Limit to top 5 headlines
-            #     title = entry.title
-            #     published = entry.published
-            #     news.append(f"📰 {title}\n📅 {published}\n")
-            return news
-        except Exception:
-            return ["Unable to fetch news headlines."]
+    def get_google_news_headlines(query, api_key, country="IN", language="en"):
+        url = "https://serpapi.com/search"
+        params = {
+            "engine": "google_news",
+            "q": query,
+            "gl": country.lower(),
+            "hl": language,
+            "api_key": api_key,
+            "num": 10
+        }
+        resp = requests.get(url, params=params)
+        resp.raise_for_status()
+        data = resp.json()
+        results = data.get("news_results", [])  # (check actual key in response)
+        news = []
+        for item in results[:10]:
+            title = item.get("title")
+            link  = item.get("link")
+            source = item.get("source", {}).get("name")
+            date = item.get("date")
+            news.append(f" {title}\n {date}\n🔗 {link}\nSource: {source}\n")
+        return news if news else ["No news found."]
 
-    news = get_google_news_headlines(f"{comp_name} Stocks latest info")
+
+    news = get_google_news_headlines(f"{comp_name} Stocks latest info","e75208e44369759b6f4edb19573d25b5099a1810d39460010304b81dd65546b1")
 
     # ----------- Return Combined Results -----------
     return {
