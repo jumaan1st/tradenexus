@@ -13,12 +13,13 @@ export default function StockPage({ params: paramsPromise }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   
-  // The key change is here: default sort is now by Date, descending
+  // Default sort is by Date, descending
   const [sortConfig, setSortConfig] = useState({ key: 'Date', direction: 'desc' });
 
   const [rawFilter, setRawFilter] = useState('');
   const [technicalFilter, setTechnicalFilter] = useState('');
   const [fundamentalFilter, setFundamentalFilter] = useState('');
+  const [sentimentFilter, setSentimentFilter] = useState(''); // State for sentiment news filter
   const { setCurrentPageTitle } = useGlobalContext();
 
   // State for pagination
@@ -99,6 +100,16 @@ export default function StockPage({ params: paramsPromise }) {
     if (verdict.toLowerCase().includes('hold') || verdict.toLowerCase().includes('skip')) return 'bg-yellow-100 text-yellow-800';
     return 'bg-gray-200 text-gray-800';
   };
+  
+  // Helper function for sentiment badges
+  const getSentimentBadgeColor = (sentiment) => {
+    if (!sentiment) return 'bg-gray-200 text-gray-800';
+    const lowerSentiment = sentiment.toLowerCase();
+    if (lowerSentiment === 'positive') return 'bg-green-100 text-green-800';
+    if (lowerSentiment === 'negative') return 'bg-red-100 text-red-800';
+    if (lowerSentiment === 'neutral') return 'bg-yellow-100 text-yellow-800';
+    return 'bg-gray-200 text-gray-800';
+  };
 
   // Improved sorting function for tables
   const sortData = (data, key, direction) => {
@@ -107,9 +118,9 @@ export default function StockPage({ params: paramsPromise }) {
       let aValue = a[key];
       let bValue = b[key];
       
-      // Explicitly handle Date sorting for robustness
-      if (key === 'Date') {
-        const dateA = aValue ? new Date(aValue) : new Date(0); // Handle null/undefined dates
+      // Handle different date key names ('Date' vs 'date')
+      if (key.toLowerCase() === 'date') {
+        const dateA = aValue ? new Date(aValue) : new Date(0);
         const dateB = bValue ? new Date(bValue) : new Date(0);
         return direction === 'asc' ? dateA - dateB : dateB - dateA;
       }
@@ -139,6 +150,7 @@ export default function StockPage({ params: paramsPromise }) {
   };
 
   const filterData = (data, filterText) => {
+    if (!filterText) return data;
     return data.filter(item =>
       Object.values(item).some(value =>
         value && value.toString().toLowerCase().includes(filterText.toLowerCase())
@@ -188,12 +200,22 @@ export default function StockPage({ params: paramsPromise }) {
       ]
     : [];
 
+  // Combine all sentiment news into one array for the table
+  const allSentimentNews = [
+    ...(result?.result?.sentiment_analysis?.positive_news?.map(news => ({ ...news, sentiment: 'Positive' })) || []),
+    ...(result?.result?.sentiment_analysis?.neutral_news?.map(news => ({ ...news, sentiment: 'Neutral' })) || []),
+    ...(result?.result?.sentiment_analysis?.negative_news?.map(news => ({ ...news, sentiment: 'Negative' })) || [])
+  ];
+
   const sortedRawData = sortData(rawData, sortConfig.key, sortConfig.direction);
   const sortedTechnicalData = sortData(technicalData, sortConfig.key, sortConfig.direction);
   const sortedFundamentalData = sortData(fundamentalData, sortConfig.key, sortConfig.direction);
+  const sortedSentimentData = sortData(allSentimentNews, sortConfig.key, sortConfig.direction);
+
   const filteredRawData = filterData(sortedRawData, rawFilter);
   const filteredTechnicalData = filterData(sortedTechnicalData, technicalFilter);
   const filteredFundamentalData = filterData(sortedFundamentalData, fundamentalFilter);
+  const filteredSentimentData = filterData(sortedSentimentData, sentimentFilter);
 
   // PAGINATION LOGIC
   const historyData = result?.raw_data?.stock_data?.history || [];
@@ -357,7 +379,7 @@ export default function StockPage({ params: paramsPromise }) {
               <p className="text-gray-600">
                 <strong>Volatility Analysis:</strong> {result?.result?.technical_overview?.volatility_analysis || 'No volatility analysis available'}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-xl text-gray-500">
                 Verdict: <span className={`inline-block px-2 py-1 rounded-full ${getVerdictBadgeColor(result?.raw_data?.technical_analysis?.verdict)}`}>{result?.raw_data?.technical_analysis?.verdict || 'N/A'}</span>
               </p>
             </div>
@@ -407,7 +429,7 @@ export default function StockPage({ params: paramsPromise }) {
               <p className="text-gray-600">
                 <strong>Summary:</strong> {result?.result?.fundamental_overview?.summary || 'No summary available'}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-xl text-gray-500">
                 Verdict: <span className={`inline-block px-2 py-1 rounded-full ${getVerdictBadgeColor(result?.raw_data?.fundamental_analysis?.verdict)}`}>{result?.raw_data?.fundamental_analysis?.verdict || 'N/A'}</span>
               </p>
             </div>
@@ -428,56 +450,59 @@ export default function StockPage({ params: paramsPromise }) {
               </p>
             </div>
           </section>
-
-          {/* Sentiment Analysis */}
+          
+          {/* --- MODIFIED SENTIMENT ANALYSIS SECTION --- */}
           <section className="bg-white shadow-xl p-6 rounded-2xl border border-gray-200 transition-all duration-300 hover:shadow-2xl">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Sentiment Analysis</h3>
             <p className="mb-4 text-gray-600">
               {result?.result?.sentiment_analysis?.summary || 'No sentiment summary available'}
             </p>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-green-600">Positive News</h4>
-                <ul className="list-disc pl-5 text-sm text-gray-600">
-                  {result?.result?.sentiment_analysis?.positive_news?.length > 0 ? (
-                    result.result.sentiment_analysis.positive_news.map((news, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-green-600 mr-2">✔</span> {news}
-                      </li>
+            <input
+              type="text"
+              placeholder="Filter news by headline, date, or sentiment..."
+              value={sentimentFilter}
+              onChange={(e) => setSentimentFilter(e.target.value)}
+              className="mb-4 w-full border border-gray-300 p-3 rounded-lg text-gray-700 focus:ring-2 focus:ring-gray-400 focus:outline-none transition duration-200"
+            />
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-gray-100 text-gray-700 font-semibold">
+                  <tr>
+                    <th className="p-3 w-3/5 cursor-pointer" onClick={() => handleSort('headline')}>
+                      Headline {sortConfig.key === 'headline' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
+                    <th className="p-3 w-1/5 cursor-pointer" onClick={() => handleSort('date')}>
+                      Date {sortConfig.key === 'date' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
+                    <th className="p-3 w-1/5 cursor-pointer" onClick={() => handleSort('sentiment')}>
+                      Sentiment {sortConfig.key === 'sentiment' ? (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredSentimentData.length > 0 ? (
+                    filteredSentimentData.map((news, index) => (
+                      <tr key={index} className="border-t text-gray-700 hover:bg-gray-50 transition duration-200">
+                        <td className="p-3">
+                          <a href={news.link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                            {news.headline}
+                          </a>
+                        </td>
+                        <td className="p-3">{news.date}</td>
+                        <td className="p-3">
+                          <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${getSentimentBadgeColor(news.sentiment)}`}>
+                            {news.sentiment}
+                          </span>
+                        </td>
+                      </tr>
                     ))
                   ) : (
-                    <li>No positive news available</li>
+                    <tr>
+                      <td colSpan="3" className="p-3 text-center text-gray-600">No news available</td>
+                    </tr>
                   )}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-yellow-600">Neutral News</h4>
-                <ul className="list-disc pl-5 text-sm text-gray-600">
-                  {result?.result?.sentiment_analysis?.neutral_news?.length > 0 ? (
-                    result.result.sentiment_analysis.neutral_news.map((news, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-yellow-600 mr-2">•</span> {news}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No neutral news available</li>
-                  )}
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-red-600">Negative News</h4>
-                <ul className="list-disc pl-5 text-sm text-gray-600">
-                  {result?.result?.sentiment_analysis?.negative_news?.length > 0 ? (
-                    result.result.sentiment_analysis.negative_news.map((news, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="text-red-600 mr-2">✖</span> {news}
-                      </li>
-                    ))
-                  ) : (
-                    <li>No negative news available</li>
-                  )}
-                </ul>
-              </div>
+                </tbody>
+              </table>
             </div>
           </section>
 

@@ -22,7 +22,7 @@ def fetch_first_url(query, api_key):
 
 def get_ticker(comp_name):
     query = f"{comp_name} Yahoo Finance"
-    first_result = fetch_first_url(query, "zeUH2nsjXf3q853aE8ee6pet")
+    first_result = fetch_first_url(query, "157R9UPwGvirUhDYMy3oZHPf")
     ticker_symbol = first_result.split('/')[4]
     
     return urllib.parse.unquote(ticker_symbol)

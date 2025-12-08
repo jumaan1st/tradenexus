@@ -4,6 +4,10 @@ import Image from 'next/image';
 import HomeHeader from '@/components/HomeHeader';
 import HomeFooter from '@/components/HomeFooter';
 import myImage from '@/public/about.jpeg'
+import moinImage from '@/public/Moin_Shariff.jpg'
+import sufyanImage from '@/public/Mohamed_Sufyan.jpg'
+import maazImage from '@/public/Mohammed_Maaz.jpg'
+import usamaImage from '@/public/Usama_Azeem.jpg'
 
 export default function AboutPage() {
   return (
@@ -41,7 +45,7 @@ export default function AboutPage() {
 "name": "Moin Shariff",
 "usn": "4MH22CS094",
 "bio": "A creative thinker with expertise in AI-driven solutions, Moin leads backend development for TRADENEXUS AI, leveraging Ollama and Gemini API for financial predictions and sentiment analysis.",
-"image": "https://images.unsplash.com/photo-1522556189639-b1509e2e5306?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
+"image": moinImage,
 "github": "https://github.com/moinshariff",
 "linkedin": "https://linkedin.com/in/moinshariff"
 },
@@ -65,7 +69,7 @@ export default function AboutPage() {
 "name": "Usama Azeem",
 "usn": "4MH23CS412",
 "bio": "An expert in backend systems and cybersecurity, Usama develops TRADENEXUS AI’s data visualizations and conversational AI, enhancing user interaction and insights.",
-"image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
+"image": usamaImage,
 "github": "https://github.com/usamaazeem",
 "linkedin": "https://linkedin.com/in/usamaazeem"
 }

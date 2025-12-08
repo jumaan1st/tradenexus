@@ -23,6 +23,7 @@ from prompts import personal_stocks, predictionPrompt, system_prompt
 from get_symbol import get_ticker
 from stock_analysis import analyze_stock
 
+
 # Set decimal precision
 getcontext().prec = 6
 
@@ -121,7 +122,7 @@ def bot():
 
         # Call the Ollama API with LLaMA 3
         response = ollama.chat(
-            model='llama3',
+            model='llama3.1',
             messages=conversation
         )
 

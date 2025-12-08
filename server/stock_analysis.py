@@ -43,7 +43,7 @@ def analyze_stock(comp_name, data=None):
         try:
        # Search for ticker symbol via Yahoo Finance
             query = f"Yahoo Finance {comp_name}"
-            first_result = fetch_first_url(query, "zeUH2nsjXf3q853aE8ee6pet")
+            first_result = fetch_first_url(query, "157R9UPwGvirUhDYMy3oZHPf")
             ticker_symbol = first_result.split('/')[4]
             ticker_symbol = urllib.parse.unquote(ticker_symbol)  # Decode URL-encoded ticker symbol
             stock = yf.Ticker(ticker_symbol)
@@ -179,14 +179,14 @@ def analyze_stock(comp_name, data=None):
             "gl": country.lower(),
             "hl": language,
             "api_key": api_key,
-            "num": 10
+            "num": 50
         }
         resp = requests.get(url, params=params)
         resp.raise_for_status()
         data = resp.json()
         results = data.get("news_results", [])  # (check actual key in response)
         news = []
-        for item in results[:10]:
+        for item in results:
             title = item.get("title")
             link  = item.get("link")
             source = item.get("source", {}).get("name")

@@ -46,29 +46,27 @@ The output must strictly follow the JSON format below:
 
 """
 def predictionPrompt(raw_data):
-  
     from datetime import datetime
     return f"""
 This is a real-time analysis of a stock. Below is the raw data fetched from an API, including:
 
 Technical analysis metrics (RSI, MACD, momentum, SMAs, etc.)
-
 Fundamental analysis (EPS, revenue growth, P/E ratio, etc.)
-
 Recent news headlines with timestamps
 
 Today’s date is {datetime.now().strftime('%d %B %Y')}.
 Your task is to analyze this data and generate a comprehensive and structured report in JSON format.
 
- Important:
+Important:
 Do NOT modify the values or structure of the input data.
 Follow the JSON output structure below strictly.
 
- JSON Output Format (Follow this strictly):
+JSON Output Format (Follow this strictly):
 {{
   "stock_name": "symbol of the stock",
-  "Currency":"currency of the stock",
-  "CurrencySymbol":"symbol of the currency",
+  "Currency": "currency of the stock",
+  "CurrencySymbol": "symbol of the currency",
+
   "technical_overview": {{
     "summary": "<Brief interpretation of technical indicators>",
     "rsi_analysis": "<Insight based on RSI value>",
@@ -78,6 +76,7 @@ Follow the JSON output structure below strictly.
     "volatility_analysis": "<Comment on current volatility and risks>",
     "price_volume_trend": "<Interpretation of price and volume trend together>"
   }},
+
   "fundamental_overview": {{
     "summary": "<Overall financial health assessment>",
     "valuation": "<Interpretation of P/E ratio and EPS>",
@@ -86,29 +85,55 @@ Follow the JSON output structure below strictly.
     "dividends": "<Comment on dividend yield>",
     "roe_analysis": "<Comment on ROE availability or lack thereof>"
   }},
+
   "sentiment_analysis": {{
     "summary": "<Overall market sentiment based on news>",
-    "positive_news": ["<Headline and date if applicable>"],
-    "negative_news": ["<Headline and date if applicable>"],
-    "neutral_news": ["<Headline and date if applicable>"],
+    "positive_news": [
+      {{
+        "headline": "Google stock rises after strong earnings",
+        "date": "2025-10-19",
+        "link": "https://example.com/article"
+      }},
+      {{
+        "headline": "Alphabet announces new AI initiative",
+        "date": "2025-10-18",
+        "link": "https://example.com/article2"
+      }}
+    ],
+    "negative_news": [
+      {{
+        "headline": "Google faces antitrust lawsuit",
+        "date": "2025-10-17",
+        "link": "https://example.com/article3"
+      }}
+    ],
+    "neutral_news": [
+      {{
+        "headline": "Google to expand offices in India",
+        "date": "2025-10-16",
+        "link": "https://example.com/article4"
+      }}
+    ]
   }},
+
   "investment_outlook": {{
-    "verdict": "Pobability of Buy / Sell / Skip in percentage",
+    "verdict": "Probability of Buy / Sell / Skip in percentage",
     "rationale": "<Clear reasoning combining technical, fundamental, and sentiment data>",
     "short_term": "<Short-term trading strategy based on analysis>",
     "long_term": "<Long-term investment strategy based on analysis>"
   }},
+
   "Suggestions": {{
     "entry_points": "<Suggested entry points based on technical analysis>",
     "exit_points": "<Suggested exit points based on technical analysis>",
     "risk_management": "<Advice on managing risks based on volatility and sentiment>",
     "diversification": "<Suggestions for portfolio diversification if applicable>",
-    "monitoring": "<Advice on how frequently to monitor this stock>"
+    "monitoring": "<Advice on how frequently to monitor this stock>",
     "missing_data": "<List of any missing data points that could improve analysis>"
-  }},
+  }}
 }}
 
- Raw Data:
+Raw Data:
 {raw_data}
 """
 
