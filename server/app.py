@@ -5,6 +5,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta
 from flask_cors import CORS
 from dotenv import load_dotenv
+
+load_dotenv()
+
 import os
 import json
 import yfinance as yf
@@ -27,7 +30,7 @@ from stock_analysis import analyze_stock
 getcontext().prec = 6
 
 # Load environment variables
-load_dotenv()
+
 
 # Initialize Flask app
 app = Flask(__name__)

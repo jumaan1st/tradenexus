@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 from google import genai
 from filter import filter
 
-client = genai.Client(api_key="AIzaSyAc8Fm4e8P51IvYNaAjeHMZcAxrPW-j1K8")
+load_dotenv()
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 
 def generate_content(prompt):
