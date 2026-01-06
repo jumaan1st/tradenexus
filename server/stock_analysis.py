@@ -172,6 +172,7 @@ def analyze_stock(comp_name, data=None):
 
     # ----------- News Headlines -----------
     def get_google_news_headlines(query, api_key, country="IN", language="en"):
+        num=30
         url = "https://serpapi.com/search"
         params = {
             "engine": "google_news",
@@ -179,14 +180,14 @@ def analyze_stock(comp_name, data=None):
             "gl": country.lower(),
             "hl": language,
             "api_key": api_key,
-            "num": 50
+            "num": num
         }
         resp = requests.get(url, params=params)
         resp.raise_for_status()
         data = resp.json()
         results = data.get("news_results", [])  # (check actual key in response)
         news = []
-        for item in results:
+        for item in results[:num]:
             title = item.get("title")
             link  = item.get("link")
             source = item.get("source", {}).get("name")

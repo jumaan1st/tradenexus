@@ -117,7 +117,7 @@ JSON Output Format (Follow this strictly):
   }},
 
   "investment_outlook": {{
-    "verdict": "Probability of Buy / Sell / Skip in percentage",
+    "verdict": "Buy x% | Sell x% |Skip x% ",
     "rationale": "<Clear reasoning combining technical, fundamental, and sentiment data>",
     "short_term": "<Short-term trading strategy based on analysis>",
     "long_term": "<Long-term investment strategy based on analysis>"
