@@ -43,7 +43,7 @@ def analyze_stock(comp_name, data=None):
         try:
        # Search for ticker symbol via Yahoo Finance
             query = f"Yahoo Finance {comp_name}"
-            first_result = fetch_first_url(query, "157R9UPwGvirUhDYMy3oZHPf")
+            first_result = fetch_first_url(query, "157R9UPwGvirUhDYMy3oZHPf") #Enter your API Key
             ticker_symbol = first_result.split('/')[4]
             ticker_symbol = urllib.parse.unquote(ticker_symbol)  # Decode URL-encoded ticker symbol
             stock = yf.Ticker(ticker_symbol)
@@ -196,7 +196,7 @@ def analyze_stock(comp_name, data=None):
         return news if news else ["No news found."]
 
 
-    news = get_google_news_headlines(f"{comp_name} Stocks latest info","e75208e44369759b6f4edb19573d25b5099a1810d39460010304b81dd65546b1")
+    news = get_google_news_headlines(f"{comp_name} Stocks latest info","e75208e44369759b6f4edb19573d25b5099a1810d39460010304b81dd65546b1") #Enter your SERP API key
 
     # ----------- Return Combined Results -----------
     return {
