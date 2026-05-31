@@ -17,6 +17,7 @@ ___
 This project is supported by a published research paper.
 
 Journal Publication:
+
 Research Paper : https://iarjset.com/wp-content/uploads/2025/12/IARJSET.2025.121252-Trade.pdf
 
 Journal : https://iarjset.com/papers/tradenexus-ai-ai-that-thinks-finance/
