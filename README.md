@@ -6,6 +6,24 @@ This project prioritizes **explainability, separation of concerns, scalability, 
 
 ---
 
+## 🎥 Project Demo
+
+[Watch the Full Demo Video](https://youtu.be/bwed119vLK4)
+
+___
+
+## 📄 Research Publication
+
+This project is supported by a published research paper.
+
+Journal Publication:
+Research Paper : https://iarjset.com/wp-content/uploads/2025/12/IARJSET.2025.121252-Trade.pdf
+
+Journal : https://iarjset.com/papers/tradenexus-ai-ai-that-thinks-finance/
+
+ResearchGate:
+https://www.researchgate.net/publication/399120268_TradeNexus_AI_-_AI_that_Thinks_Finance
+
 ## 📌 System Architecture Overview
 
 This document provides a clear, professional, and implementation-faithful architectural description of the TradeNexus AI system. It is intended to complement the detailed documentation files by offering **high-level clarity** while remaining **concise, readable, and interview-defensible**.
