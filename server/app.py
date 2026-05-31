@@ -204,6 +204,7 @@ def login():
         max_age=7 * 24 * 60 * 60,
         path='/'
     )
+
     return response, 200
 
 @app.route('/market-data-us', methods=['GET'])
