@@ -1,50 +1,163 @@
 # TradeNexus AI – AI that Thinks Finance
 
-**TradeNexus AI** is a modular, AI-driven **decision-support system** designed to assist investors with structured, explainable financial market insights.
-
-This project prioritizes **explainability, separation of concerns, scalability, and academic correctness** over opaque automation or speculative trading claims.
+An AI-powered financial decision-support platform that combines Technical Analysis, Fundamental Analysis, and Sentiment Analysis to generate explainable investment insights.
 
 ---
 
 ## 🎥 Project Demo
 
-[Watch the Full Demo Video](https://youtu.be/bwed119vLK4)
+Watch the complete project walkthrough:
 
-___
+**Demo Video:**  
+https://youtu.be/bwed119vLK4
+
+## 📌 Quick Highlights
+
+- AI-Powered Financial Decision Support Platform
+- Combines Technical, Fundamental, and Sentiment Analysis
+- Weighted Fusion Decision Engine
+- Explainable Buy / Sell / Hold Insights
+- Next.js + Flask + PostgreSQL Architecture
+- Published Research Paper
+
+---
 
 ## 📄 Research Publication
 
 This project is supported by a published research paper.
 
-Journal Publication:
+**Journal Publication:**  
+https://iarjset.com/papers/tradenexus-ai-ai-that-thinks-finance/
 
-Research Paper : https://iarjset.com/wp-content/uploads/2025/12/IARJSET.2025.121252-Trade.pdf
+**Research Paper (PDF):**  
+https://iarjset.com/wp-content/uploads/2025/12/IARJSET.2025.121252-Trade.pdf
 
-Journal : https://iarjset.com/papers/tradenexus-ai-ai-that-thinks-finance/
-
-ResearchGate:
+**ResearchGate:**  
 https://www.researchgate.net/publication/399120268_TradeNexus_AI_-_AI_that_Thinks_Finance
-
-## 📌 System Architecture Overview
-
-This document provides a clear, professional, and implementation-faithful architectural description of the TradeNexus AI system. It is intended to complement the detailed documentation files by offering **high-level clarity** while remaining **concise, readable, and interview-defensible**.
-
-TradeNexus AI is architected as a **layered decision-support platform**, not an automated trading engine.
 
 ---
 
-## 1. Architectural Philosophy
+## 🚀 Project Overview
 
-The architecture of TradeNexus AI is guided by the following principles:
+TradeNexus AI is a modular AI-assisted financial analysis platform designed to help investors make informed decisions through structured and explainable market intelligence.
 
-- **Decision Support over Automation**  
-  The system assists investors with structured insights rather than executing trades.
+The platform combines:
 
-- **Explainability First**  
-  Every generated insight is traceable to underlying analytical components.
+- Technical Analysis
+- Fundamental Analysis
+- Sentiment Analysis
 
-- **Modularity & Separation of Concerns**  
-  Independent analytical modules ensure maintainability and extensibility.
+These analytical perspectives are synthesized through a weighted decision framework to generate transparent Buy, Sell, or Hold insights while preserving human decision-making.
+
+TradeNexus AI is designed as a decision-support system rather than an automated trading platform.
+
+---
+
+## ✨ Key Features
+
+- AI-assisted investment insights
+- Technical indicator analysis (RSI, MACD, SMA)
+- Fundamental stock evaluation
+- News and sentiment analysis
+- Weighted Fusion Decision Engine
+- Explainable Buy / Sell / Hold recommendations
+- Portfolio tracking
+- AI-powered financial assistant
+- Modular and extensible architecture
+
+---
+
+## 🏗 Architecture
+
+TradeNexus AI follows a layered client-server architecture consisting of:
+
+- Presentation Layer
+- Application & Control Layer
+- AI & Analytics Layer
+- Data Storage Layer
+
+For detailed architecture:
+
+➡️ See `ARCHITECTURE.md`
+
+---
+
+## 🛠 Technology Stack
+
+### Frontend
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+
+### Backend
+
+- Python
+- Flask
+
+### Database
+
+- PostgreSQL
+
+### AI & Analytics
+
+- Technical Analysis
+- Fundamental Analysis
+- Sentiment Analysis
+- Weighted Fusion Decision Engine
+
+---
+
+## 📂 Repository Structure
+
+```text
+TradeNexus-AI/
+│
+├── client/
+├── server/
+│
+├── README.md
+├── ARCHITECTURE.md
+├── CODEMAP.md
+├── DESIGN_DECISIONS.md
+```
+
+---
+
+## 📚 Documentation
+
+| Document | Purpose |
+|-----------|----------|
+| README.md | Project overview |
+| ARCHITECTURE.md | System architecture |
+| CODEMAP.md | Codebase navigation |
+| DESIGN_DECISIONS.md | Engineering rationale |
+
+---
+
+## 🚀 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/TradeNexus-AI.git
+```
+
+Navigate to the project directory:
+
+```bash
+cd TradeNexus-AI
+```
+
+Refer to the client and server folders for setup instructions and environment configuration.
+
+---
+
+## 📌 Note
+
+TradeNexus AI is intended as an educational and decision-support platform.
+
+The system assists users through structured, explainable financial analysis and does not execute trades or provide guaranteed financial outcomes  Independent analytical modules ensure maintainability and extensibility.
 
 - **Noise Reduction via Consensus**  
   A fusion-based approach is preferred over single-model predictions.
