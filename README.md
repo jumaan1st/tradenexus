@@ -36,12 +36,15 @@ https://iarjset.com/wp-content/uploads/2025/12/IARJSET.2025.121252-Trade.pdf
 https://www.researchgate.net/publication/399120268_TradeNexus_AI_-_AI_that_Thinks_Finance
 
 ---
+
 ## 🏆 Recognition
 
 **TradeNexus AI – AI that Thinks Finance** received the **Best Project Award** from the Department of Computer Science & Engineering, Maharaja Institute of Technology Mysore, in recognition of outstanding project execution, innovation, technical excellence, and overall impact.
 
 📜 **Award Certificate:**  
 [View Award Certificate](https://drive.google.com/file/d/1i40HiutDy_qdInN_QDa968FVyCj_AkKq/view?usp=sharing)
+
+---
 
 ## 🚀 Project Overview
 
