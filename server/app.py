@@ -229,6 +229,7 @@ def get_market_data_us():
         json_table = df.to_dict(orient='records')  # Convert to list of dicts
         all_tables_json.append(json_table)
 
+
     return jsonify(all_tables_json), 200
 
 @app.route('/market-data-in', methods=['GET'])
