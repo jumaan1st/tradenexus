@@ -5,53 +5,68 @@ import traceback
 from extensions import db
 from models import UserDetails
 from services.auth import register_user, authenticate_user
+from utils.validators import (
+    ValidationError, required_fields, validate_email,
+    validate_password, validate_username, validate_name
+)
 import config
 
 auth_bp = Blueprint('auth', __name__)
 
 
-def _handle_error(e, message="Something went wrong"):
-    traceback.print_exc()
-    return {"error": message, "details": str(e)}
-
-
 @auth_bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    required_fields = ["full_name", "username", "password", "email"]
+    try:
+        data = request.get_json()
+        required_fields(data, ["full_name", "username", "password", "email"])
 
-    if not all(data.get(field) for field in required_fields):
-        return jsonify({"msg": "All fields are required"}), 400
+        validate_name(data["full_name"])
+        validate_username(data["username"])
+        validate_password(data["password"])
+        validate_email(data["email"])
 
-    user, error = register_user(
-        data["full_name"], data["username"], data["password"], data["email"]
-    )
-    if error:
-        return jsonify({"msg": error}), 409
+        user, error = register_user(
+            data["full_name"], data["username"], data["password"], data["email"]
+        )
+        if error:
+            return jsonify({"msg": error}), 409
 
-    return jsonify({"msg": f"User {data['full_name']} registered successfully"}), 201
+        return jsonify({"msg": f"User {data['full_name']} registered successfully"}), 201
+
+    except ValidationError as e:
+        return jsonify({"msg": e.message}), e.status_code
+    except Exception as e:
+        traceback.print_exc()
+        db.session.rollback()
+        return jsonify({"msg": "Registration failed", "details": str(e)}), 500
 
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
+    try:
+        data = request.get_json()
+        required_fields(data, ["username", "password"])
 
-    access_token = authenticate_user(username, password)
-    if not access_token:
-        return jsonify({"msg": "Invalid username or password"}), 401
+        access_token = authenticate_user(data["username"], data["password"])
+        if not access_token:
+            return jsonify({"msg": "Invalid username or password"}), 401
 
-    response = make_response(jsonify({"msg": "Login successful"}))
-    response.set_cookie(
-        "access_token", access_token,
-        httponly=True,
-        secure=False,
-        samesite='Lax',
-        max_age=config.JWT_EXPIRY_DAYS * 24 * 60 * 60,
-        path='/'
-    )
-    return response, 200
+        response = make_response(jsonify({"msg": "Login successful"}))
+        response.set_cookie(
+            "access_token", access_token,
+            httponly=True,
+            secure=False,
+            samesite='Lax',
+            max_age=config.JWT_EXPIRY_DAYS * 24 * 60 * 60,
+            path='/'
+        )
+        return response, 200
+
+    except ValidationError as e:
+        return jsonify({"msg": e.message}), e.status_code
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"msg": "Login failed", "details": str(e)}), 500
 
 
 @auth_bp.route('/logout', methods=['POST'])
@@ -64,11 +79,15 @@ def logout():
 @auth_bp.route('/protected', methods=['GET'])
 @jwt_required()
 def protected():
-    current_user = get_jwt_identity()
-    claims = get_jwt()
-    return jsonify({
-        "id": current_user,
-        "username": claims.get("username"),
-        "full_name": claims.get("full_name"),
-        "email": claims.get("email"),
-    }), 200
+    try:
+        current_user = get_jwt_identity()
+        claims = get_jwt()
+        return jsonify({
+            "id": current_user,
+            "username": claims.get("username"),
+            "full_name": claims.get("full_name"),
+            "email": claims.get("email"),
+        }), 200
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({"msg": "Failed to fetch user info"}), 500
