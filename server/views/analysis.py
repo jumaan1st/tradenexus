@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 import traceback
+import json
 
 from services.ai import get_ai_client
 from services.stock import analyze_stock
@@ -43,7 +44,13 @@ def predict():
         stock_data = analyze_stock(data["company"])
         prompt, output_format = prediction_prompt(stock_data)
         ai = get_ai_client()
-        result = ai.generate(prompt, system=None, output_format=output_format)
+        response = ai.generate(
+            prompt,
+            system=None,
+            output_format=output_format
+        )
+
+        result = json.loads(response)
         return jsonify({"result": result, "raw_data": stock_data}), 200
 
     except ValidationError as e:
