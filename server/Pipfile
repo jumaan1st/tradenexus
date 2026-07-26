@@ -19,6 +19,8 @@ webdriver-manager = "*"
 yahooquery = "*"
 feedparser = "*"
 ollama = "*"
+openai = "*"
+anthropic = "*"
 
 [dev-packages]
 

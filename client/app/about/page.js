@@ -4,6 +4,10 @@ import Image from 'next/image';
 import HomeHeader from '@/components/HomeHeader';
 import HomeFooter from '@/components/HomeFooter';
 import myImage from '@/public/about.jpeg'
+import moinImage from '@/public/Moin_Shariff.png'
+import sufyanImage from '@/public/Mohamed_Sufyan.jpg'
+import maazImage from '@/public/Mohammed_Maaz.jpeg'
+import usamaImage from '@/public/Usama_Azeem.jpeg'
 
 export default function AboutPage() {
   return (
@@ -41,38 +45,38 @@ export default function AboutPage() {
 "name": "Moin Shariff",
 "usn": "4MH22CS094",
 "bio": "A creative thinker with expertise in AI-driven solutions, Moin leads backend development for TRADENEXUS AI, leveraging Ollama and Gemini API for financial predictions and sentiment analysis.",
-"image": "https://images.unsplash.com/photo-1522556189639-b1509e2e5306?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
-"github": "https://github.com/moinshariff",
-"linkedin": "https://linkedin.com/in/moinshariff"
+"image": moinImage,
+"github": "https://github.com/moinshariff26",
+"linkedin": "https://linkedin.com/in/moin-shariff"
 },
 {
 "name": "Mohamed Sufyan",
 "usn": "4MH22CS092",
 "bio": "A tech enthusiast with a focus on AI and finance, Mohamed develops intuitive UI/UX for TRADENEXUS AI’s frontend, ensuring a seamless and accessible user experience.",
-"image": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
+"image": sufyanImage,
 "github": "https://github.com/mohamedsufyan",
-"linkedin": "https://linkedin.com/in/mohamedsufyan"
+"linkedin": "https://www.linkedin.com/in/mohamed-sufyan-106987399/"
 },
 {
 "name": "Mohammed Maaz",
 "usn": "4MH22CS093",
 "bio": "A skilled coder specializing in machine learning, Maaz manages TRADENEXUS AI’s database, ensuring robust data handling and security for real-time analytics.",
-"image": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
-"github": "https://github.com/mohammedmaaz",
-"linkedin": "https://linkedin.com/in/mohammedmaaz"
+"image": maazImage,
+"github": "https://github.com/Maaz-dot-com",
+"linkedin": "https://www.linkedin.com/in/mohammed-maaz-cse/"
 },
 {
 "name": "Usama Azeem",
 "usn": "4MH23CS412",
 "bio": "An expert in backend systems and cybersecurity, Usama develops TRADENEXUS AI’s data visualizations and conversational AI, enhancing user interaction and insights.",
-"image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&q=80",
+"image": usamaImage,
 "github": "https://github.com/usamaazeem",
 "linkedin": "https://linkedin.com/in/usamaazeem"
 }
 ].map((member, i) => (
             <div
               key={i}
-              className="bg-[#F0F9FF] rounded-xl p-8 shadow-lg transform hover:shadow-2xl transition duration-500 flex flex-col items-center border border-[#A5BFFA]/20"
+              className="bg-[#F0F9FF] rounded-xl p-8 shadow-lg transform hover:shadow-2xl transition duration-500 flex flex-col items-center border border-[#A5BFFA]/20 text-center"
             >
               <Image
                 src={member.image}
