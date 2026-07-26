@@ -3,5 +3,9 @@
   <component name="Black">
     <option name="sdkName" value="Pipenv (server)" />
   </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider"><![CDATA[{
+  "isMigrated": true
+}]]></component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (server)" project-jdk-type="Python SDK" />
 </project>
