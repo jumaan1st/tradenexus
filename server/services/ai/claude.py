@@ -9,17 +9,11 @@ class ClaudeClient(AIClient):
         self.model = model
 
     def _call(self, messages, system=None):
-        kwargs = {"model": self.model, "max_tokens": 8192, "messages": messages}
+        kwargs = {"model": self.model, "max_tokens": 4096, "messages": messages}
         if system:
             kwargs["system"] = system
         response = self.client.messages.create(**kwargs)
-
-        # Filter out ThinkingBlock — only keep TextBlock
-        text_parts = [
-            block.text for block in response.content
-            if isinstance(block, anthropic.types.TextBlock)
-        ]
-        return filter_backticks("\n".join(text_parts))
+        return filter_backticks(response.content[0].text)
 
     def generate(self, prompt, system=None):
         messages = [{"role": "user", "content": prompt}]

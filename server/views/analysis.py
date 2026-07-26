@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
+import json
 import traceback
 
 from services.ai import get_ai_client
@@ -26,8 +27,8 @@ def get_personal_stocks():
     try:
         prompt = personal_stocks(amount, term, risk, frequency)
         ai = get_ai_client()
-        result = ai.generate_json(prompt)
-        return jsonify(result), 200
+        generated_json = ai.generate(prompt)
+        return jsonify(json.loads(generated_json)), 200
     except Exception as e:
         return jsonify(_handle_error(e, "Failed to generate content")), 500
 
@@ -45,7 +46,7 @@ def predict():
         stock_data = analyze_stock(company)
         prompt = prediction_prompt(stock_data)
         ai = get_ai_client()
-        result = ai.generate_json(prompt)
+        result = json.loads(ai.generate(prompt))
         return jsonify({"result": result, "raw_data": stock_data}), 200
     except Exception as e:
         return jsonify(_handle_error(e, "Failed to analyze stock")), 500
