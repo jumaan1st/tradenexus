@@ -107,7 +107,6 @@ Focus on maximizing potential returns while managing risk appropriately, and pre
     return prompt, output_format
 
 
-
 def prediction_prompt(raw_data):
     prompt = f"""
 This is a real-time analysis of a stock. Below is the raw data fetched from an API, including:
@@ -121,6 +120,19 @@ Your task is to analyze this data and generate a comprehensive and structured re
 
 Important:
 Do NOT modify the values or structure of the input data.
+
+Additionally, perform a basic Shariah (Halal) compliance screening for this stock based on
+standard criteria used by Islamic finance screening methodologies (e.g. AAOIFI-style):
+- Business activity: the company's core business must not be primarily involved in
+  alcohol, gambling, conventional banking/insurance, pork products, adult entertainment,
+  weapons, or other impermissible sectors.
+- Financial ratios (if derivable from the provided data): interest-bearing debt to market
+  cap, interest income to revenue, and illiquid assets to total assets should each
+  generally stay below commonly used thresholds (e.g. ~33%).
+If the raw data does not contain enough information to assess business activity or the
+relevant financial ratios (e.g. no sector/industry classification, no debt or interest
+income figures), classify the screening as "Cannot Determine" rather than guessing, and
+state exactly what information is missing in the reasoning field.
 
 Raw Data:
 {raw_data}
@@ -142,9 +154,12 @@ Raw Data:
                         "rsi_analysis": {"type": "string", "description": "Insight based on RSI value"},
                         "macd_analysis": {"type": "string", "description": "Insight based on MACD and signal line"},
                         "momentum_analysis": {"type": "string", "description": "Insight on momentum indicator"},
-                        "sma_analysis": {"type": "string", "description": "Comparison of SMA-5 and SMA-10 with current price"},
-                        "volatility_analysis": {"type": "string", "description": "Comment on current volatility and risks"},
-                        "price_volume_trend": {"type": "string", "description": "Interpretation of price and volume trend together"}
+                        "sma_analysis": {"type": "string",
+                                         "description": "Comparison of SMA-5 and SMA-10 with current price"},
+                        "volatility_analysis": {"type": "string",
+                                                "description": "Comment on current volatility and risks"},
+                        "price_volume_trend": {"type": "string",
+                                               "description": "Interpretation of price and volume trend together"}
                     },
                     "required": [
                         "summary", "rsi_analysis", "macd_analysis",
@@ -219,6 +234,34 @@ Raw Data:
                     "additionalProperties": False
                 },
 
+                "halal_screening": {
+                    "type": "object",
+                    "properties": {
+                        "status": {
+                            "type": "string",
+                            "enum": ["Halal", "Haram", "Cannot Determine"],
+                            "description": "Overall Shariah-compliance classification"
+                        },
+                        "business_activity_assessment": {
+                            "type": "string",
+                            "description": "Assessment of whether the company's core business sector is permissible, or a note that sector data was unavailable"
+                        },
+                        "financial_ratio_assessment": {
+                            "type": "string",
+                            "description": "Assessment of interest-bearing debt, interest income, and illiquid asset ratios against common screening thresholds, or a note that this data was unavailable"
+                        },
+                        "reasoning": {
+                            "type": "string",
+                            "description": "Overall explanation for the status, including any specific missing data points that prevented a definitive Halal/Haram determination"
+                        }
+                    },
+                    "required": [
+                        "status", "business_activity_assessment",
+                        "financial_ratio_assessment", "reasoning"
+                    ],
+                    "additionalProperties": False
+                },
+
                 "investment_outlook": {
                     "type": "object",
                     "properties": {
@@ -226,9 +269,12 @@ Raw Data:
                             "type": "string",
                             "description": "e.g. 'Buy x%', 'Sell x%', 'Skip x%'"
                         },
-                        "rationale": {"type": "string", "description": "Clear reasoning combining technical, fundamental, and sentiment data"},
-                        "short_term": {"type": "string", "description": "Short-term trading strategy based on analysis"},
-                        "long_term": {"type": "string", "description": "Long-term investment strategy based on analysis"}
+                        "rationale": {"type": "string",
+                                      "description": "Clear reasoning combining technical, fundamental, and sentiment data"},
+                        "short_term": {"type": "string",
+                                       "description": "Short-term trading strategy based on analysis"},
+                        "long_term": {"type": "string",
+                                      "description": "Long-term investment strategy based on analysis"}
                     },
                     "required": ["verdict", "rationale", "short_term", "long_term"],
                     "additionalProperties": False
@@ -237,12 +283,18 @@ Raw Data:
                 "Suggestions": {
                     "type": "object",
                     "properties": {
-                        "entry_points": {"type": "string", "description": "Suggested entry points based on technical analysis"},
-                        "exit_points": {"type": "string", "description": "Suggested exit points based on technical analysis"},
-                        "risk_management": {"type": "string", "description": "Advice on managing risks based on volatility and sentiment"},
-                        "diversification": {"type": "string", "description": "Suggestions for portfolio diversification if applicable"},
-                        "monitoring": {"type": "string", "description": "Advice on how frequently to monitor this stock"},
-                        "missing_data": {"type": "string", "description": "List of any missing data points that could improve analysis"}
+                        "entry_points": {"type": "string",
+                                         "description": "Suggested entry points based on technical analysis"},
+                        "exit_points": {"type": "string",
+                                        "description": "Suggested exit points based on technical analysis"},
+                        "risk_management": {"type": "string",
+                                            "description": "Advice on managing risks based on volatility and sentiment"},
+                        "diversification": {"type": "string",
+                                            "description": "Suggestions for portfolio diversification if applicable"},
+                        "monitoring": {"type": "string",
+                                       "description": "Advice on how frequently to monitor this stock"},
+                        "missing_data": {"type": "string",
+                                         "description": "List of any missing data points that could improve analysis"}
                     },
                     "required": [
                         "entry_points", "exit_points", "risk_management",
@@ -254,7 +306,8 @@ Raw Data:
             "required": [
                 "stock_name", "Currency", "CurrencySymbol",
                 "technical_overview", "fundamental_overview",
-                "sentiment_analysis", "investment_outlook", "Suggestions"
+                "sentiment_analysis", "halal_screening",
+                "investment_outlook", "Suggestions"
             ],
             "additionalProperties": False
         }
