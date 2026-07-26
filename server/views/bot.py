@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
-import ollama
 import traceback
 
+from services.ai import get_ai_client
 from utils.prompts import system_prompt
 
 bot_bp = Blueprint('bot', __name__)
@@ -16,17 +16,8 @@ def bot():
         if not messages:
             return jsonify({"error": "No messages provided"}), 400
 
-        conversation = []
-        for msg in messages:
-            if 'user' in msg:
-                conversation.append({"role": "user", "content": msg['user']})
-            if 'bot' in msg:
-                conversation.append({"role": "assistant", "content": msg['bot']})
-
-        conversation.insert(0, {"role": "system", "content": system_prompt})
-
-        response = ollama.chat(model='llama3.1', messages=conversation)
-        bot_response = response['message']['content']
+        ai = get_ai_client()
+        bot_response = ai.chat(messages, system=system_prompt)
 
         return jsonify({"response": bot_response}), 200
 

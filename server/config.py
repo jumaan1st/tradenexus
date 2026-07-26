@@ -8,6 +8,13 @@ SEARCHAPI_KEY = os.environ.get("SEARCHAPI_KEY")
 SERPAPI_KEY = os.environ.get("SERPAPI_KEY")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
+# --- AI Provider ---
+AI_PROVIDER = os.environ.get("AI_PROVIDER", "gemini")
+AI_MODEL = os.environ.get("AI_MODEL")
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.1")
+DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
+DEEPSEEK_BASE_URL = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+
 # --- Stock Data ---
 STOCK_HISTORY_PERIOD = os.environ.get("STOCK_HISTORY_PERIOD", "2mo")
 STOCK_MIN_HISTORY_DAYS = int(os.environ.get("STOCK_MIN_HISTORY_DAYS", "20"))
