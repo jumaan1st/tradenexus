@@ -15,6 +15,7 @@ def get_ai_client() -> AIClient:
 
     Set AI_MODEL in .env to any model name (e.g. gemini-2.0-flash, llama3, deepseek-reasoner).
     If AI_MODEL is empty, uses provider default.
+    Raises ValueError if provider is unknown or required API key is missing.
     """
     global _client
     if _client is not None:
@@ -23,11 +24,16 @@ def get_ai_client() -> AIClient:
     provider = config.AI_PROVIDER.lower()
     model = config.AI_MODEL or DEFAULTS.get(provider)
 
+    if provider not in DEFAULTS:
+        raise ValueError(f"Unknown AI_PROVIDER '{provider}'. Must be one of: {', '.join(DEFAULTS)}")
+
     if provider == "ollama":
         from services.ai.ollama import OllamaClient
         _client = OllamaClient(model=model)
 
     elif provider == "deepseek":
+        if not config.DEEPSEEK_API_KEY:
+            raise ValueError("DEEPSEEK_API_KEY is required when AI_PROVIDER=deepseek")
         from services.ai.deepseek import DeepSeekClient
         _client = DeepSeekClient(
             api_key=config.DEEPSEEK_API_KEY,
@@ -35,7 +41,9 @@ def get_ai_client() -> AIClient:
             model=model
         )
 
-    else:
+    elif provider == "gemini":
+        if not config.GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY is required when AI_PROVIDER=gemini")
         from services.ai.gemini import GeminiClient
         _client = GeminiClient(api_key=config.GEMINI_API_KEY, model=model)
 
