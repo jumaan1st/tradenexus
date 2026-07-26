@@ -2,7 +2,7 @@ from datetime import datetime
 
 
 def personal_stocks(amount, term, risk, frequency):
-    return f"""Using the data stored in the InvestorProfile table, analyze the investor's financial attributes to generate a personalized stock recommendation report. The output should consider the following parameters:
+    prompt = f"""Using the data stored in the InvestorProfile table, analyze the investor's financial attributes to generate a personalized stock recommendation report. The output should consider the following parameters:
 
 InvestableAmount: {amount} inr
 TimeHorizon: {term} (short-term, medium-term, long-term)
@@ -11,47 +11,105 @@ InvestmentFrequency: {frequency} (lump sum, SIP, or other method)
 
 Based on this profile, craft an investment strategy that aligns with the investor's goals and constraints. Recommendations should **only include individual company stocks** listed on major stock exchanges (such as NSE/BSE in India or globally on NYSE/NASDAQ). **Do not include mutual funds, index funds, ETFs, or bundled investment products**.
 
-Focus on maximizing potential returns while managing risk appropriately, and present a well-diversified portfolio consisting strictly of **individual equity shares**. Avoid any collective investment schemes or packages.
+Focus on maximizing potential returns while managing risk appropriately, and present a well-diversified portfolio consisting strictly of **individual equity shares**. Avoid any collective investment schemes or packages."""
 
-The output must strictly follow the JSON format below:
+    output_format = {
+        "name": "stock_recommendation_report",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "investorProfileSummary": {
+                    "type": "object",
+                    "properties": {
+                        "InvestableAmount": {"type": "string"},
+                        "TimeHorizon": {
+                            "type": "string",
+                            "enum": ["Short-term", "Medium-term", "Long-term"]
+                        },
+                        "RiskTolerance": {
+                            "type": "string",
+                            "enum": ["Low", "Medium", "High", "Other"]
+                        },
+                        "InvestmentFrequency": {
+                            "type": "string",
+                            "enum": ["Lump Sum", "SIP", "Other Method"]
+                        }
+                    },
+                    "required": [
+                        "InvestableAmount",
+                        "TimeHorizon",
+                        "RiskTolerance",
+                        "InvestmentFrequency"
+                    ],
+                    "additionalProperties": False
+                },
+                "recommendationStrategy": {
+                    "type": "object",
+                    "properties": {
+                        "description": {"type": "string"},
+                        "focus": {
+                            "type": "array",
+                            "items": {"type": "string"}
+                        },
+                        "suitability": {"type": "string"}
+                    },
+                    "required": ["description", "focus", "suitability"],
+                    "additionalProperties": False
+                },
+                "suggestedPortfolio": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "assetIdentifier": {"type": "string"},
+                            "assetName": {"type": "string"},
+                            "assetClassOrSector": {"type": "string"},
+                            "rationale": {"type": "string"},
+                            "riskCategory": {"type": "string"},
+                            "suggestedAction": {
+                                "type": "string",
+                                "enum": ["Buy", "Hold", "Accumulate", "Tactical Allocation"]
+                            }
+                        },
+                        "required": [
+                            "assetIdentifier",
+                            "assetName",
+                            "assetClassOrSector",
+                            "rationale",
+                            "riskCategory",
+                            "suggestedAction"
+                        ],
+                        "additionalProperties": False
+                    }
+                },
+                "portfolioAllocationNotes": {
+                    "type": "object",
+                    "properties": {
+                        "suggestion": {"type": "string"},
+                        "monitoring": {"type": "string"}
+                    },
+                    "required": ["suggestion", "monitoring"],
+                    "additionalProperties": False
+                },
+                "disclaimer": {"type": "string"}
+            },
+            "required": [
+                "investorProfileSummary",
+                "recommendationStrategy",
+                "suggestedPortfolio",
+                "portfolioAllocationNotes",
+                "disclaimer"
+            ],
+            "additionalProperties": False
+        }
+    }
 
-{{
-  "investorProfileSummary": {{
-    "InvestableAmount": "<Amount> <Currency>",
-    "TimeHorizon": "<Short-term | Medium-term | Long-term>",
-    "RiskTolerance": "<Low | Medium | High | Other>",
-    "InvestmentFrequency": "<Lump Sum | SIP | Other Method>"
-  }},
-  "recommendationStrategy": {{
-    "description": "String: Explanation of the investment strategy derived from the investor's profile parameters (risk, horizon, frequency, amount).",
-    "focus": [
-      "String: Key characteristic 1 (e.g., Asset Class, Market Cap, Sector Focus)",
-      "String: Key characteristic 2 (e.g., Growth/Value, Volatility Target)"
-    ],
-    "suitability": "String: Rationale explaining why this specific strategy aligns with the investor's stated profile and goals."
-  }},
-  "suggestedPortfolio": [
-    {{
-      "assetIdentifier": "<Ticker Symbol>",
-      "assetName": "<Name of the Individual Stock>",
-      "assetClassOrSector": "<e.g., Information Technology, FMCG, Pharma>",
-      "rationale": "String: Justification for including this specific stock, linking it to the overall strategy and investor profile.",
-      "riskCategory": "<e.g., Low, Medium, High, Speculative - Relative description>",
-      "suggestedAction": "<e.g., Buy, Hold, Accumulate, Tactical Allocation>"
-    }}
-  ],
-  "portfolioAllocationNotes": {{
-    "suggestion": "String: Guidance on distributing the investable amount across the suggested stocks (e.g., percentage allocation, equal weighting).",
-    "monitoring": "String: Recommendations for portfolio review frequency and rebalancing approach (e.g., Annually, Semi-Annually, Based on market events)."
-  }},
-  "disclaimer": "String: Standard disclaimer covering aspects like non-personalized advice, market risks, potential loss of principal, past performance limitations, recommendation to conduct own research or consult a qualified advisor, and dependence on provided profile information."
-}}
+    return prompt, output_format
 
-"""
 
 
 def prediction_prompt(raw_data):
-    return f"""
+    prompt = f"""
 This is a real-time analysis of a stock. Below is the raw data fetched from an API, including:
 
 Technical analysis metrics (RSI, MACD, momentum, SMAs, etc.)
@@ -59,82 +117,150 @@ Fundamental analysis (EPS, revenue growth, P/E ratio, etc.)
 Recent news headlines with timestamps
 
 Today's date is {datetime.now().strftime('%d %B %Y')}.
-Your task is to analyze this data and generate a comprehensive and structured report in JSON format.
+Your task is to analyze this data and generate a comprehensive and structured report.
 
 Important:
 Do NOT modify the values or structure of the input data.
-Follow the JSON output structure below strictly.
-
-JSON Output Format (Follow this strictly):
-{{
-  "stock_name": "symbol of the stock",
-  "Currency": "currency of the stock",
-  "CurrencySymbol": "symbol of the currency",
-
-  "technical_overview": {{
-    "summary": "<Brief interpretation of technical indicators>",
-    "rsi_analysis": "<Insight based on RSI value>",
-    "macd_analysis": "<Insight based on MACD and signal line>",
-    "momentum_analysis": "<Insight on momentum indicator>",
-    "sma_analysis": "<Comparison of SMA-5 and SMA-10 with current price>",
-    "volatility_analysis": "<Comment on current volatility and risks>",
-    "price_volume_trend": "<Interpretation of price and volume trend together>"
-  }},
-
-  "fundamental_overview": {{
-    "summary": "<Overall financial health assessment>",
-    "valuation": "<Interpretation of P/E ratio and EPS>",
-    "growth": "<Interpretation of revenue growth>",
-    "leverage": "<Comment on Debt-to-Equity ratio and risks>",
-    "dividends": "<Comment on dividend yield>",
-    "roe_analysis": "<Comment on ROE availability or lack thereof>"
-  }},
-
-  "sentiment_analysis": {{
-    "summary": "<Overall market sentiment based on news>",
-    "positive_news": [
-      {{
-        "headline": "Google stock rises after strong earnings",
-        "date": "2025-10-19",
-        "link": "https://example.com/article"
-      }}
-    ],
-    "negative_news": [
-      {{
-        "headline": "Google faces antitrust lawsuit",
-        "date": "2025-10-17",
-        "link": "https://example.com/article3"
-      }}
-    ],
-    "neutral_news": [
-      {{
-        "headline": "Google to expand offices in India",
-        "date": "2025-10-16",
-        "link": "https://example.com/article4"
-      }}
-    ]
-  }},
-
-  "investment_outlook": {{
-    "verdict": "Buy x% | Sell x% |Skip x% ",
-    "rationale": "<Clear reasoning combining technical, fundamental, and sentiment data>",
-    "short_term": "<Short-term trading strategy based on analysis>",
-    "long_term": "<Long-term investment strategy based on analysis>"
-  }},
-
-  "Suggestions": {{
-    "entry_points": "<Suggested entry points based on technical analysis>",
-    "exit_points": "<Suggested exit points based on technical analysis>",
-    "risk_management": "<Advice on managing risks based on volatility and sentiment>",
-    "diversification": "<Suggestions for portfolio diversification if applicable>",
-    "monitoring": "<Advice on how frequently to monitor this stock>",
-    "missing_data": "<List of any missing data points that could improve analysis>"
-  }}
-}}
 
 Raw Data:
 {raw_data}
 """
+
+    output_format = {
+        "name": "stock_prediction_report",
+        "schema": {
+            "type": "object",
+            "properties": {
+                "stock_name": {"type": "string", "description": "Symbol of the stock"},
+                "Currency": {"type": "string", "description": "Currency of the stock"},
+                "CurrencySymbol": {"type": "string", "description": "Symbol of the currency"},
+
+                "technical_overview": {
+                    "type": "object",
+                    "properties": {
+                        "summary": {"type": "string", "description": "Brief interpretation of technical indicators"},
+                        "rsi_analysis": {"type": "string", "description": "Insight based on RSI value"},
+                        "macd_analysis": {"type": "string", "description": "Insight based on MACD and signal line"},
+                        "momentum_analysis": {"type": "string", "description": "Insight on momentum indicator"},
+                        "sma_analysis": {"type": "string", "description": "Comparison of SMA-5 and SMA-10 with current price"},
+                        "volatility_analysis": {"type": "string", "description": "Comment on current volatility and risks"},
+                        "price_volume_trend": {"type": "string", "description": "Interpretation of price and volume trend together"}
+                    },
+                    "required": [
+                        "summary", "rsi_analysis", "macd_analysis",
+                        "momentum_analysis", "sma_analysis",
+                        "volatility_analysis", "price_volume_trend"
+                    ],
+                    "additionalProperties": False
+                },
+
+                "fundamental_overview": {
+                    "type": "object",
+                    "properties": {
+                        "summary": {"type": "string", "description": "Overall financial health assessment"},
+                        "valuation": {"type": "string", "description": "Interpretation of P/E ratio and EPS"},
+                        "growth": {"type": "string", "description": "Interpretation of revenue growth"},
+                        "leverage": {"type": "string", "description": "Comment on Debt-to-Equity ratio and risks"},
+                        "dividends": {"type": "string", "description": "Comment on dividend yield"},
+                        "roe_analysis": {"type": "string", "description": "Comment on ROE availability or lack thereof"}
+                    },
+                    "required": [
+                        "summary", "valuation", "growth",
+                        "leverage", "dividends", "roe_analysis"
+                    ],
+                    "additionalProperties": False
+                },
+
+                "sentiment_analysis": {
+                    "type": "object",
+                    "properties": {
+                        "summary": {"type": "string", "description": "Overall market sentiment based on news"},
+                        "positive_news": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "headline": {"type": "string"},
+                                    "date": {"type": "string"},
+                                    "link": {"type": "string"}
+                                },
+                                "required": ["headline", "date", "link"],
+                                "additionalProperties": False
+                            }
+                        },
+                        "negative_news": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "headline": {"type": "string"},
+                                    "date": {"type": "string"},
+                                    "link": {"type": "string"}
+                                },
+                                "required": ["headline", "date", "link"],
+                                "additionalProperties": False
+                            }
+                        },
+                        "neutral_news": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "headline": {"type": "string"},
+                                    "date": {"type": "string"},
+                                    "link": {"type": "string"}
+                                },
+                                "required": ["headline", "date", "link"],
+                                "additionalProperties": False
+                            }
+                        }
+                    },
+                    "required": ["summary", "positive_news", "negative_news", "neutral_news"],
+                    "additionalProperties": False
+                },
+
+                "investment_outlook": {
+                    "type": "object",
+                    "properties": {
+                        "verdict": {
+                            "type": "string",
+                            "description": "e.g. 'Buy x%', 'Sell x%', 'Skip x%'"
+                        },
+                        "rationale": {"type": "string", "description": "Clear reasoning combining technical, fundamental, and sentiment data"},
+                        "short_term": {"type": "string", "description": "Short-term trading strategy based on analysis"},
+                        "long_term": {"type": "string", "description": "Long-term investment strategy based on analysis"}
+                    },
+                    "required": ["verdict", "rationale", "short_term", "long_term"],
+                    "additionalProperties": False
+                },
+
+                "Suggestions": {
+                    "type": "object",
+                    "properties": {
+                        "entry_points": {"type": "string", "description": "Suggested entry points based on technical analysis"},
+                        "exit_points": {"type": "string", "description": "Suggested exit points based on technical analysis"},
+                        "risk_management": {"type": "string", "description": "Advice on managing risks based on volatility and sentiment"},
+                        "diversification": {"type": "string", "description": "Suggestions for portfolio diversification if applicable"},
+                        "monitoring": {"type": "string", "description": "Advice on how frequently to monitor this stock"},
+                        "missing_data": {"type": "string", "description": "List of any missing data points that could improve analysis"}
+                    },
+                    "required": [
+                        "entry_points", "exit_points", "risk_management",
+                        "diversification", "monitoring", "missing_data"
+                    ],
+                    "additionalProperties": False
+                }
+            },
+            "required": [
+                "stock_name", "Currency", "CurrencySymbol",
+                "technical_overview", "fundamental_overview",
+                "sentiment_analysis", "investment_outlook", "Suggestions"
+            ],
+            "additionalProperties": False
+        }
+    }
+
+    return prompt, output_format
 
 
 system_prompt = """You are TRADENEXUS AI's virtual financial advisor, a helpful, knowledgeable, and friendly assistant designed to guide users through finance and stock-related queries. Your job is to provide accurate, insightful, and easy-to-understand answers.

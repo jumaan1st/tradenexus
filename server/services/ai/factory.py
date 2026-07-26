@@ -5,7 +5,7 @@ _client = None
 
 DEFAULTS = {
     "gemini": "gemini-2.5-flash",
-    "claude": "claude-sonnet-4-20250514",
+    "claude": "claude-haiku-4-5-20251001",
     "ollama": "llama3.1",
     "deepseek": "deepseek-chat",
 }
