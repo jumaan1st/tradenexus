@@ -3,8 +3,8 @@ from services.ai.base import AIClient
 
 
 class OllamaClient(AIClient):
-    def __init__(self, model=None):
-        self.model = model or "llama3.1"
+    def __init__(self, model):
+        self.model = model
 
     def generate(self, prompt, system=None):
         messages = []

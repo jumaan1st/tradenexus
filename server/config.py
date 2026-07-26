@@ -10,8 +10,7 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
 # --- AI Provider ---
 AI_PROVIDER = os.environ.get("AI_PROVIDER", "gemini")
-AI_MODEL = os.environ.get("AI_MODEL")
-OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "llama3.1")
+AI_MODEL = os.environ.get("AI_MODEL", "")
 DEEPSEEK_API_KEY = os.environ.get("DEEPSEEK_API_KEY")
 DEEPSEEK_BASE_URL = os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 

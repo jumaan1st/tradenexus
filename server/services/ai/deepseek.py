@@ -4,12 +4,12 @@ from utils.text import filter_backticks
 
 
 class DeepSeekClient(AIClient):
-    def __init__(self, api_key, base_url=None, model=None):
+    def __init__(self, api_key, model, base_url=None):
         self.client = OpenAI(
             api_key=api_key,
             base_url=base_url or "https://api.deepseek.com"
         )
-        self.model = model or "deepseek-chat"
+        self.model = model
 
     def _call(self, messages):
         response = self.client.chat.completions.create(
@@ -23,8 +23,6 @@ class DeepSeekClient(AIClient):
         messages = []
         if system:
             messages.append({"role": "system", "content": system})
-        else:
-            messages.append({"role": "system", "content": "You are a helpful finance adviser."})
         messages.append({"role": "user", "content": prompt})
         return self._call(messages)
 
@@ -32,8 +30,6 @@ class DeepSeekClient(AIClient):
         formatted = []
         if system:
             formatted.append({"role": "system", "content": system})
-        else:
-            formatted.append({"role": "system", "content": "You are a helpful finance adviser."})
         for msg in messages:
             if "role" in msg and "content" in msg:
                 formatted.append(msg)

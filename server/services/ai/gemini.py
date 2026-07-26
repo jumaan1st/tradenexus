@@ -4,21 +4,14 @@ from utils.text import filter_backticks
 
 
 class GeminiClient(AIClient):
-    def __init__(self, api_key, model=None):
+    def __init__(self, api_key, model):
         self.client = genai.Client(api_key=api_key)
-        self.model = model or "gemini-2.5-flash"
-        self.fallback_model = "gemini-2.0-flash"
+        self.model = model
 
     def _call(self, contents):
-        try:
-            response = self.client.models.generate_content(
-                model=self.model, contents=contents
-            )
-        except Exception as e:
-            print(f"Error with {self.model}: {e}. Falling back to {self.fallback_model}.")
-            response = self.client.models.generate_content(
-                model=self.fallback_model, contents=contents
-            )
+        response = self.client.models.generate_content(
+            model=self.model, contents=contents
+        )
         return filter_backticks(response.text)
 
     def generate(self, prompt, system=None):
