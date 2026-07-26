@@ -28,7 +28,18 @@ def create_app():
 
     db.init_app(app)
     jwt.init_app(app)
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3000"}})
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={
+            r"/*": {
+                "origins": [
+                    "http://localhost:3000",
+                    "https://expressional-jessia-unbadgered.ngrok-free.dev"
+                ]
+            }
+        }
+    )
 
     register_blueprints(app)
 
