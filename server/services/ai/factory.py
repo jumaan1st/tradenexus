@@ -5,6 +5,7 @@ _client = None
 
 DEFAULTS = {
     "gemini": "gemini-2.5-flash",
+    "claude": "claude-sonnet-4-20250514",
     "ollama": "llama3.1",
     "deepseek": "deepseek-chat",
 }
@@ -46,5 +47,11 @@ def get_ai_client() -> AIClient:
             raise ValueError("GEMINI_API_KEY is required when AI_PROVIDER=gemini")
         from services.ai.gemini import GeminiClient
         _client = GeminiClient(api_key=config.GEMINI_API_KEY, model=model)
+
+    elif provider == "claude":
+        if not config.ANTHROPIC_API_KEY:
+            raise ValueError("ANTHROPIC_API_KEY is required when AI_PROVIDER=claude")
+        from services.ai.claude import ClaudeClient
+        _client = ClaudeClient(api_key=config.ANTHROPIC_API_KEY, model=model)
 
     return _client
