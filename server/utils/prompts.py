@@ -121,18 +121,31 @@ Your task is to analyze this data and generate a comprehensive and structured re
 Important:
 Do NOT modify the values or structure of the input data.
 
-Additionally, perform a basic Shariah (Halal) compliance screening for this stock based on
-standard criteria used by Islamic finance screening methodologies (e.g. AAOIFI-style):
-- Business activity: the company's core business must not be primarily involved in
-  alcohol, gambling, conventional banking/insurance, pork products, adult entertainment,
-  weapons, or other impermissible sectors.
-- Financial ratios (if derivable from the provided data): interest-bearing debt to market
-  cap, interest income to revenue, and illiquid assets to total assets should each
-  generally stay below commonly used thresholds (e.g. ~33%).
-If the raw data does not contain enough information to assess business activity or the
-relevant financial ratios (e.g. no sector/industry classification, no debt or interest
-income figures), classify the screening as "Cannot Determine" rather than guessing, and
-state exactly what information is missing in the reasoning field.
+Additionally, perform a Shariah (Halal) compliance screening for this stock with two
+separate parts:
+
+1. Business activity screen: use your own general knowledge of what this company actually
+   does -- this does not require the raw data to spell it out. If the company's core business
+   is clearly and inherently impermissible (e.g. conventional/interest-based banks and
+   insurers, breweries and liquor companies, casinos and gambling operators, pork producers,
+   adult entertainment, or conventional weapons manufacturers), classify it as "Haram" on this
+   basis alone, confidently. Do not hedge into "Cannot Determine" for cases where the business
+   activity itself is the well-known, unambiguous disqualifier -- a bank is a bank regardless
+   of what the technical/fundamental data does or doesn't say about it.
+
+2. Financial ratio screen: interest-bearing debt to market cap, interest income to revenue, and
+   illiquid assets to total assets should each generally stay below roughly 33% for a company
+   whose business activity already passes screen 1. If the raw data includes figures relevant
+   to this (debt levels, interest income, etc.), use them. If not, reason from what is generally
+   known about the company's balance sheet profile where possible, and only mark this specific
+   sub-check as "Cannot Determine" (not the whole stock) if there is truly no reasonable basis
+   to estimate it.
+
+Only set the overall halal_status to "Cannot Determine" if the business activity itself is
+genuinely ambiguous (e.g. a diversified conglomerate with mixed segments) AND the ratio screen
+also can't be reasonably estimated. Never default to "Cannot Determine" solely because the raw
+data doesn't contain sector labels or exact ratios, if the business activity is obviously
+permissible or obviously impermissible from general knowledge.
 
 Raw Data:
 {raw_data}
@@ -237,26 +250,26 @@ Raw Data:
                 "halal_screening": {
                     "type": "object",
                     "properties": {
-                        "status": {
+                        "halal_status": {
                             "type": "string",
                             "enum": ["Halal", "Haram", "Cannot Determine"],
                             "description": "Overall Shariah-compliance classification"
                         },
                         "business_activity_assessment": {
                             "type": "string",
-                            "description": "Assessment of whether the company's core business sector is permissible, or a note that sector data was unavailable"
+                            "description": "Assessment of the company's core business sector based on general knowledge, stated confidently where the sector is well-known"
                         },
                         "financial_ratio_assessment": {
                             "type": "string",
-                            "description": "Assessment of interest-bearing debt, interest income, and illiquid asset ratios against common screening thresholds, or a note that this data was unavailable"
+                            "description": "Assessment of interest-bearing debt, interest income, and illiquid asset ratios against common screening thresholds, noting if this specific sub-check could not be estimated"
                         },
                         "reasoning": {
                             "type": "string",
-                            "description": "Overall explanation for the status, including any specific missing data points that prevented a definitive Halal/Haram determination"
+                            "description": "Overall explanation for the status, only citing missing data as a reason if the business activity itself was also genuinely ambiguous"
                         }
                     },
                     "required": [
-                        "status", "business_activity_assessment",
+                        "halal_status", "business_activity_assessment",
                         "financial_ratio_assessment", "reasoning"
                     ],
                     "additionalProperties": False
